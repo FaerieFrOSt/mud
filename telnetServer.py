@@ -13,6 +13,11 @@ class   TelnetServer():
     _TN_SUBNEGOTIATION_START = 250
     _TN_SUBNEGOTIATION_END = 240
 
+    # server events
+    _EVENT_NEW_CLIENT = 1
+    _EVENT_CLIENT_DISCONNECTED = 2
+    _EVENT_MESSAGE = 3
+
     class   Client():
         def __init__(self, socket, address):
             self.socket = socket
@@ -23,17 +28,31 @@ class   TelnetServer():
     def __init__(self, ip, port):
         self.clients = {}
         self.nextId = 0
+        self.events = []
+        self.newEvents = []
         self.listenSocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.listenSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.listenSocket.bind((ip, port))
         self.listenSocket.setblocking(False)
         self.listenSocket.listen(1)
 
+    def shutdown(self):
+        for client in self.clients.values():
+            client.socket.shutdown()
+            client.socket.close()
+        self.listenSocket.close()
+
     def update(self):
         self._check_new_connections()
         self._check_disconnected()
         self._check_messages()
+        self.events = list(self.newEvents)
+        self.newEvents = []
         return True
+
+    def sendAll(self, data):
+        for id, client in list(self.clients.items()):
+            send(id, data)
 
     def send(self, client, data):
         try:
@@ -43,6 +62,15 @@ class   TelnetServer():
         except socket.error:
             self.disconnected(client)
 
+    def get_new_clients(self):
+        return [i[1] for i in self.events if i[0] == self._EVENT_NEW_CLIENT]
+
+    def get_disconnected_clients(self):
+        return [i[1] for i in self.events if i[0] == self._EVENT_CLIENT_DISCONNECTED]
+
+    def get_messages(self):
+        return [(i[1], i[2]) for i in self.events if i[0] == self._EVENT_MESSAGE]
+
     def _check_new_connections(self):
         rlist, wlist, xlist = select.select([self.listenSocket], [], [], 0)
         if self.listenSocket not in rlist:
@@ -50,6 +78,7 @@ class   TelnetServer():
         joinedSocket, addr = self.listenSocket.accept()
         joinedSocket.setblocking(False)
         self.clients[self.nextId] = TelnetServer.Client(joinedSocket, addr[0])
+        self.newEvents.append((self._EVENT_NEW_CLIENT, self.nextId))
         self.nextId += 1
 
     def _check_disconnected(self):
@@ -69,11 +98,13 @@ class   TelnetServer():
                 message = self.cleanup(client, data)
                 if message:
                     message = message.strip()
+                    self.newEvents.append((self._EVENT_MESSAGE, id, message))
             except socket.error:
                 self.disconnected(id)
 
     def disconnected(self, client):
         del(self.clients[client])
+        self.newEvents.append((self._EVENT_CLIENT_DISCONNECTED, client))
 
     def cleanup(self, client, data):
         _READ_STATE_NORMAL = 1
