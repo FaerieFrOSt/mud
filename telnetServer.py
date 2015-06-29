@@ -52,7 +52,13 @@ class   TelnetServer():
 
     def sendAll(self, data):
         for id, client in list(self.clients.items()):
-            send(id, data)
+            self.send(id, data)
+
+    def sendAllExcept(self, id, data):
+        for i, client in list(self.clients.items()):
+            if i == id:
+                continue
+            self.send(i, data)
 
     def send(self, client, data):
         try:
