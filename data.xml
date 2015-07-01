@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='utf-8'?>
 <world xml:lang='en'>
-	<room>
+	<room attribute="begin">
 		<name>Central room</name>
 		<description>This is the central room</description>
 		<exit>Left room</exit>

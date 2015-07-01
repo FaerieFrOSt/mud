@@ -10,17 +10,23 @@ class   Mud():
     def __init__(self, file):
         tree = etree.parse(file)
         root = tree.getroot()
-        self.rooms = []
+        self.rooms = {}
+        self.begin = None
         for child in root:
             if child.tag not in "room":
                 continue
             exits = []
             for j in range(2, len(child)):
                 exits.append(child[j].text)
-            self.rooms.append(Mud.Room(child[0].text, child[1].text, exits))
+            try:
+                if child.attrib['attribute'] in "begin":
+                    self.begin = child[0].text
+            except KeyError:
+                pass
+            self.rooms[child[0].text] = Mud.Room(child[0].text, child[1].text, exits)
 
     def print_rooms(self):
-        for i in self.rooms:
+        for j, i in self.rooms.items():
             print(i.name)
             print(i.desc)
             print(i.exits)
