@@ -12,6 +12,8 @@ class   Mud():
         root = tree.getroot()
         self.rooms = []
         for child in root:
+            if child.tag not in "room":
+                continue
             exits = []
             for j in range(2, len(child)):
                 exits.append(child[j].text)
