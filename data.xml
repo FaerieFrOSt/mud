@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='utf-8'?>
+<world xml:lang='en'>
+	<room>
+		<name>Central room</name>
+		<description>This is the central room</description>
+		<exit>Left room</exit>
+	</room>
+	<room>
+		<name>Left room</name>
+		<description>This is the left room</description>
+		<exit>Central room</exit>
+	</room>
+</world>
