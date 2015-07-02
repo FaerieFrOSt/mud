@@ -38,14 +38,15 @@ class   TelnetServer():
 
     def shutdown(self):
         for client in self.clients.values():
-            client.socket.shutdown()
+            client.socket.shutdown(socket.SHUT_RDWR)
             client.socket.close()
         self.listenSocket.close()
 
     def disconnect(self, client):
         try:
-            self.clients[client].socket.shutdown()
+            self.clients[client].socket.shutdown(socket.SHUT_RDWR)
             self.clients[client].socket.close()
+            del(self.clients[client])
         except KeyError:
             pass
 
