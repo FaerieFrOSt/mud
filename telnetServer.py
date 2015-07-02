@@ -42,6 +42,13 @@ class   TelnetServer():
             client.socket.close()
         self.listenSocket.close()
 
+    def disconnect(self, client):
+        try:
+            self.clients[client].socket.shutdown()
+            self.clients[client].socket.close()
+        except KeyError:
+            pass
+
     def update(self):
         self._check_new_connections()
         self._check_disconnected()
