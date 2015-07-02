@@ -40,6 +40,7 @@ class   TelnetServer():
         for client in self.clients.values():
             client.socket.shutdown(socket.SHUT_RDWR)
             client.socket.close()
+        del(clients)
         self.listenSocket.close()
 
     def disconnect(self, client):
