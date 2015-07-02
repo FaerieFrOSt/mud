@@ -14,29 +14,40 @@ class   Worker():
                 }
 
     def say(self, player, message):
-        self.sendToRoomExcept(player, player.room, player.name +
-                " says " + ' '.join(message[1:]) + "\n")
-        self.server.send(player.id, "You say '" +
-                ' '.join(message[1:]) + "'\n")
+        data = player.name + " says '" + ' '.join(message[1:]) + "'\n"
+        self.send(data, dont=[player], rooms=[player.room])
+        data = "You say '" + ' '.join(message[1:]) + "'\n"
+        self.send(data, to=[player])
 
     def quit(self, player, message):
         try:
             id = player.id
-            self.sendToRoomExcept(player, player.room, player.name +
-                    " has disconnected\n")
-            self.server.send(id, "See you soon!\n")
+            self.send(player.name + " has disconnected\n", dont=[player],
+                    rooms=[player.room])
+            seld.send("See you soon!\n", to=[player])
             del(self.players[id])
             self.server.disconnect(id)
         except KeyError:
             pass
 
     def tell(self, player, message):
-        self.server.send(player.id, "not implemented\n")
+        self.send("Not implemented\n", to=[player])
+
+    def send(self, message, to=[], dont=[], rooms=[]):
+        for i in to:
+            if i in dont:
+                continue
+            self.server.send(i.id, message)
+        for room in rooms:
+            for i in self.getPlayersInRoom(room):
+                if i in dont:
+                    continue
+                self.server.send(i.id, message)
 
     def connections(self):
         for id in self.server.get_new_clients():
             self.players[id] = Player()
-            self.server.send(id, "Enter your name : ")
+            self.send("Enter your name : ", to=[self.players[id]])
 
     def disconnections(self):
         for id in self.server.get_disconnected_clients():
@@ -44,8 +55,8 @@ class   Worker():
             try:
                 player = self.players[id]
                 del(self.players[id])
-                self.sendToRoom(player.room, player.name +
-                        " disconnected\n")
+                self.send(player.name + " disconnected\n", dont=[player],
+                        room=[player.room])
             except KeyError:
                 pass
 
@@ -54,28 +65,18 @@ class   Worker():
             if i.room in room:
                 yield i
 
-    def sendToRoom(self, room, message):
-        for i in self.getPlayersInRoom(room):
-            self.server.send(i.id, message)
-
-    def sendToRoomExcept(self, player, room, message):
-        for i in self.getPlayersInRoom(room):
-            if i.name in player.name:
-                continue
-            self.server.send(i.id, message)
-
     def getRoom(self, player):
         return self.mud.rooms[player.room]
 
     def sendRoom(self, player):
-        self.server.send(player.id,
-                "You are in " + self.getRoom(player).name + "\n")
+        self.send("You are in " + self.getRoom(player).name + "\n",
+                to=[player])
 
     def sendDesc(self, player):
         if player.isVisited(player.room):
             return
         player.visit(player.room)
-        self.send(player.id, self.getRoom(player).desc + "\n")
+        self.send(self.getRoom(player).desc + "\n", to=[player])
 
     def loadOrCreate(self, id, message):
         player = self.players[id]
@@ -84,13 +85,12 @@ class   Worker():
         player.create(id, message, self.mud.begin)
         try:
             self.sendRoom(player)
-            self.sendToRoom(player.room, player.name +
-                    " has connected\n")
+            self.send(player.name + " has connected\n", dont=[player],
+                    rooms=[player.room])
         except KeyError:
             player.room = self.mud.begin
-            self.server.send(id,
-                "You have been teleported back to "
-                + player.room + "\n")
+            self.send("You have been teleported back to " + player.room
+                    + "\n", to=[player])
             self.sendDesc(player)
         return player, False
 
@@ -102,14 +102,18 @@ class   Worker():
                 if not b:
                     continue
             except KeyError:
-                server.send(id, "You have to log in before\n")
-                server.disconnect(id)
+                self.send(id, "You have to log in before\n", to=[player])
+                self.server.disconnect(id)
             if not player:
                 continue
+            if not player.isVisited(player.room):
+                self.sendDesc(player)
+                player.visit(player.room)
             message = message.lstrip(' \t\r')
             message = message.rstrip(' \t\r')
             message = message.split(' ')
             try:
                 self.commands[message[0]](player, message)
             except KeyError:
-                self.send(id, "This is not a known command, try again\n")
+                self.send("This is not a known command, try again\n",
+                        to=[player])
