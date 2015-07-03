@@ -1,17 +1,16 @@
 class   Player():
-    def __init__(self):
+    def __init__(self, id):
         self.name = None
         self.room = None
         self.visited = []
-        self.id = None
+        self.id = id
 
     def load(self, name):
         return False
 
-    def create(self, id, name, room):
+    def create(self, name, room):
         self.name = name
         self.room = room
-        self.id = id
         return True
 
     def visit(self, room):

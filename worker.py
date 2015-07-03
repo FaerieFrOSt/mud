@@ -24,7 +24,7 @@ class   Worker():
             id = player.id
             self.send(player.name + " has disconnected\n", dont=[player],
                     rooms=[player.room])
-            seld.send("See you soon!\n", to=[player])
+            self.send("See you soon!\n", to=[player])
             del(self.players[id])
             self.server.disconnect(id)
         except KeyError:
@@ -46,7 +46,7 @@ class   Worker():
 
     def connections(self):
         for id in self.server.get_new_clients():
-            self.players[id] = Player()
+            self.players[id] = Player(id)
             self.send("Enter your name : ", to=[self.players[id]])
 
     def disconnections(self):
@@ -78,20 +78,25 @@ class   Worker():
         player.visit(player.room)
         self.send(self.getRoom(player).desc + "\n", to=[player])
 
+    def sendCommandLine(self, player):
+        self.send(">", to=[player])
+
     def loadOrCreate(self, id, message):
         player = self.players[id]
         if player.name:
             return player, True
-        player.create(id, message, self.mud.begin)
+        player.create(message, self.mud.begin)
         try:
             self.sendRoom(player)
+            if not player.isVisited(player.room):
+                self.sendDesc(player)
+                player.visit(player.room)
             self.send(player.name + " has connected\n", dont=[player],
                     rooms=[player.room])
         except KeyError:
             player.room = self.mud.begin
             self.send("You have been teleported back to " + player.room
                     + "\n", to=[player])
-            self.sendDesc(player)
         return player, False
 
     def messages(self):
@@ -100,6 +105,7 @@ class   Worker():
             try:
                 player, b = self.loadOrCreate(id, message)
                 if not b:
+                    self.sendCommandLine(player)
                     continue
             except KeyError:
                 self.send(id, "You have to log in before\n", to=[player])
@@ -112,8 +118,12 @@ class   Worker():
             message = message.lstrip(' \t\r')
             message = message.rstrip(' \t\r')
             message = message.split(' ')
+            if len(message) < 1:
+                self.sendCommandLine(player)
+                continue
             try:
                 self.commands[message[0]](player, message)
+                self.sendCommandLine(player)
             except KeyError:
                 self.send("This is not a known command, try again\n",
                         to=[player])
