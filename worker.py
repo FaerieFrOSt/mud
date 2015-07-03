@@ -8,10 +8,18 @@ class   Worker():
         self.mud = mud
         self.server = server
         self.commands = {
+                'help' : self.help,
                 'say'  : self.say,
                 'tell' : self.tell,
                 'quit' : self.quit,
                 }
+    def help(self, player, message):
+        data = """Here is the list of the commands :
+        help - print this help,
+        say  - say something,
+        tell - tell someone something
+        quit - quit the mud\n"""
+        self.send(data, to=[player])
 
     def say(self, player, message):
         data = player.name + " says '" + ' '.join(message[1:]) + "'\n"
