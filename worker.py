@@ -1,46 +1,20 @@
 from telnetServer import TelnetServer
 from mud import Mud
 from player import Player
+from commands import Parser
 
 class   Worker():
-    def __init__(self, mud, server):
+    def __init__(self, mud, server, bus):
         self.players = {}
         self.mud = mud
         self.server = server
-        self.commands = {
-                'help' : self.help,
-                'say'  : self.say,
-                'tell' : self.tell,
-                'quit' : self.quit,
-                }
+        bus.register("send", self.send)
+        bus.register("quit", self.quit)
+        self.parser = Parser(bus)
 
-    def help(self, player, message):
-        data = """Here is the list of the commands :
-        help - print this help,
-        say  - say something,
-        tell - tell someone something
-        quit - quit the mud\n"""
-        self.send(data, to=player)
-
-    def say(self, player, message):
-        data = player.name + " says '" + ' '.join(message[1:]) + "'\n"
-        self.send(data, dont=player, rooms=player.room)
-        data = "You say '" + ' '.join(message[1:]) + "'\n"
-        self.send(data, to=player)
-
-    def quit(self, player, message):
-        try:
-            id = player.id
-            self.send(player.name + " has disconnected\n", dont=player,
-                    rooms=player.room)
-            self.send("See you soon!\n", to=player)
-            del(self.players[id])
-            self.server.disconnect(id)
-        except KeyError:
-            pass
-
-    def tell(self, player, message):
-        self.send("Not implemented\n", to=player)
+    def quit(self, id):
+        del(self.players[id])
+        self.server.disconnect(id)
 
     def send(self, message, to=[], dont=[], rooms=[]):
         if not isinstance(to, list):
@@ -136,9 +110,5 @@ class   Worker():
             if len(message) < 1:
                 self.sendCommandLine(player)
                 continue
-            try:
-                self.commands[message[0]](player, message)
-                self.sendCommandLine(player)
-            except KeyError:
-                self.send("This is not a known command, try again\n",
-                        to=player)
+            self.parser.explode(player, message)
+            self.sendCommandLine(player)
