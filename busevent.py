@@ -7,7 +7,7 @@ class   BusEvent():
 
     def send(self, name, *args, **kwargs):
         try:
-            self.registered[name](*args, **kwargs)
+            return self.registered[name](*args, **kwargs)
         except KeyError:
             pass
 

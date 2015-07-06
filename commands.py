@@ -1,9 +1,8 @@
 import datetime
 
 class   Parser():
-    def __init__(self, findPlayer, bus):
+    def __init__(self, bus):
         self.send = bus.send
-        self.find = findPlayer
         self.explode_commands = {
                 '/now'  : self.now,
                 }
@@ -39,13 +38,13 @@ class   Parser():
 
     def tell(self, player, message):
         data = player.name + " tells you '" + ' '.join(message[1:]) + "'\n"
-        t = self.find(message[0])
+        t = self.send("findPlayer", message[0])
         if not t:
             self.send("send", message[0] + " is not connected right now\n",
                     to=player)
             return
         self.send("send", data, to=t)
-        data = "You tell " + message[0] + " '" + ' '.join(message) + "'\n"
+        data = "You tell " + message[0] + " '" + ' '.join(message[1:]) + "'\n"
         self.send("send", data, to=player)
         
     def now(self, player, message):

@@ -10,7 +10,8 @@ class   Worker():
         self.server = server
         bus.register("send", self.send)
         bus.register("quit", self.quit)
-        self.parser = Parser(self.findPlayer, bus)
+        bus.register("findPlayer", self.findPlayer)
+        self.parser = Parser(bus)
 
     def quit(self, id):
         del(self.players[id])
@@ -67,6 +68,10 @@ class   Worker():
         self.send("You are in " + self.getRoom(player).name + "\n",
                 to=player)
 
+    def sendExits(self, player):
+        self.send("Exits : " + ' '.join(self.getRoom(player).exits) + '\n',
+                to=player)
+
     def sendDesc(self, player):
         if player.isVisited(player.room):
             return
@@ -86,12 +91,14 @@ class   Worker():
             if not player.isVisited(player.room):
                 self.sendDesc(player)
                 player.visit(player.room)
+            self.sendExits(player)
             self.send(player.name + " has connected\n", dont=player,
                     rooms=player.room)
         except KeyError:
             player.room = self.mud.begin
             self.send("You have been teleported back to " + player.room
                     + "\n", to=player)
+            self.sendExits(player)
         return player, False
 
     def messages(self):
@@ -109,6 +116,7 @@ class   Worker():
                 continue
             if not player.isVisited(player.room):
                 self.sendDesc(player)
+                self.sendExits(player)
                 player.visit(player.room)
             message = message.lstrip(' \t\r')
             message = message.rstrip(' \t\r')
