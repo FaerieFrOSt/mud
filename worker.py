@@ -11,7 +11,16 @@ class   Worker():
         bus.register("send", self.send)
         bus.register("quit", self.quit)
         bus.register("findPlayer", self.findPlayer)
+        bus.register("room", self.room)
         self.parser = Parser(bus)
+
+    def room(self, room):
+        data = {}
+        data["room"] = self.mud.rooms[room]
+        data["players"] = []
+        for i in self.getPlayersInRoom(room):
+            data["players"].append(i)
+        return data
 
     def quit(self, id):
         del(self.players[id])

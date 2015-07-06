@@ -18,3 +18,6 @@ class   Player():
 
     def isVisited(self, room):
         return room in self.visited
+
+    def __str__(self):
+        return self.name

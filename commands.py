@@ -11,7 +11,26 @@ class   Parser():
                 '/tell' : self.tell,
                 '/quit' : self.quit,
                 '/help' : self.help,
+                '/look' : self.look,
                 }
+
+    def look(self, player, message):
+        l = self.send("room", player.room)
+        if not l:
+            return
+        data = """You are in {0}.
+{1}
+
+""".format(l["room"].name, l["room"].desc)
+        data = data + "The exits are : " + ', '.join(l["room"].exits) + "\n"
+        data = data + ', '.join(str(a) for a in l["players"])
+        if len(l["players"]) > 1:
+            data += " are here.\n"
+        elif len(l["players"]) == 1:
+            data += " is here.\n"
+        else:
+            data += "There isn't anyone here.\n"
+        self.send("send", data, to=player)
 
     def help(self, player, message):
         data = """Here is the list of the commands :
