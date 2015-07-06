@@ -13,13 +13,13 @@ class   Mud():
         self.rooms = {}
         self.begin = None
         for child in root:
-            if child.tag not in "room":
+            if child.tag != "room":
                 continue
             exits = []
             for j in range(2, len(child)):
                 exits.append(child[j].text)
             try:
-                if child.attrib['attribute'] in "begin":
+                if child.attrib['attribute'] == "begin":
                     self.begin = child[0].text
             except KeyError:
                 pass

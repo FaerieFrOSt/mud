@@ -10,7 +10,7 @@ class   Worker():
         self.server = server
         bus.register("send", self.send)
         bus.register("quit", self.quit)
-        self.parser = Parser(bus)
+        self.parser = Parser(self.findPlayer, bus)
 
     def quit(self, id):
         del(self.players[id])
@@ -49,9 +49,15 @@ class   Worker():
             except KeyError:
                 pass
 
+    def findPlayer(self, name):
+        for i, j in self.players.items():
+            if j.name == name:
+                return j
+        return None
+
     def getPlayersInRoom(self, room):
         for j, i in list(self.players.items()):
-            if i.room in room:
+            if i.room == room:
                 yield i
 
     def getRoom(self, player):
