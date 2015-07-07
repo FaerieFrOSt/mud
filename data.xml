@@ -3,11 +3,11 @@
 	<room attribute="begin">
 		<name>Central room</name>
 		<description>This is the central room</description>
-		<exit>Left room</exit>
+		<exit to="Left room" direction="west">Left room</exit>
 	</room>
 	<room>
 		<name>Left room</name>
 		<description>This is the left room</description>
-		<exit>Central room</exit>
+		<exit to="Central room" direction="east">Central room</exit>
 	</room>
 </world>

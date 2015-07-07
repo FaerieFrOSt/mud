@@ -12,11 +12,23 @@ class   Worker():
         bus.register("quit", self.quit)
         bus.register("findPlayer", self.findPlayer)
         bus.register("room", self.room)
+        bus.register("move", self.move)
+        bus.register("look", self.printEnter)
         self.parser = Parser(bus)
+
+    def printEnter(self, player):
+        if player.isVisited(player.room):
+            self.parser.explode(player, "/look false")
+        else:
+            self.parser.explode(player, "/look")
+            player.visit(player.room)
+
+    def move(self, player, name):
+        player.room = self.mud.rooms[name]
 
     def room(self, room):
         data = {}
-        data["room"] = self.mud.rooms[room]
+        data["room"] = self.mud.rooms[room.name]
         data["players"] = []
         for i in self.getPlayersInRoom(room):
             data["players"].append(i)
@@ -71,21 +83,7 @@ class   Worker():
                 yield i
 
     def getRoom(self, player):
-        return self.mud.rooms[player.room]
-
-    def sendRoom(self, player):
-        self.send("You are in " + self.getRoom(player).name + "\n",
-                to=player)
-
-    def sendExits(self, player):
-        self.send("Exits : " + ' '.join(self.getRoom(player).exits) + '\n',
-                to=player)
-
-    def sendDesc(self, player):
-        if player.isVisited(player.room):
-            return
-        player.visit(player.room)
-        self.send(self.getRoom(player).desc + "\n", to=player)
+        return self.mud.rooms[player.room.name]
 
     def sendCommandLine(self, player):
         self.send(">", to=player)
@@ -96,11 +94,7 @@ class   Worker():
             return player, True
         player.create(message, self.mud.begin)
         try:
-            self.sendRoom(player)
-            if not player.isVisited(player.room):
-                self.sendDesc(player)
-                player.visit(player.room)
-            self.sendExits(player)
+            self.printEnter(player)
             self.send(player.name + " has connected\n", dont=player,
                     rooms=player.room)
         except KeyError:
@@ -123,10 +117,6 @@ class   Worker():
                 self.server.disconnect(id)
             if not player:
                 continue
-            if not player.isVisited(player.room):
-                self.sendDesc(player)
-                self.sendExits(player)
-                player.visit(player.room)
             message = message.lstrip(' \t\r')
             message = message.rstrip(' \t\r')
             message = message.split(' ')

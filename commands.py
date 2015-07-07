@@ -12,17 +12,32 @@ class   Parser():
                 '/quit' : self.quit,
                 '/help' : self.help,
                 '/look' : self.look,
+                '/goto' : self.goto,
                 }
+
+    def goto(self, player, message):
+        if len(message) < 1:
+            self.send("send", "Usage : /goto direction\n", to=player)
+            return
+        for i in player.room.exits:
+            if i.direction == message[0]:
+                self.send("move", player, i.to)
+                self.send("look", player)
+                return
+        self.send("send", message[0] + " is not a valid exit\n", to=player)
 
     def look(self, player, message):
         l = self.send("room", player.room)
+        desc = l["room"].desc
+        if len(message) > 0 and message[0] == "false":
+            desc = ""
         if not l:
             return
         data = """You are in {0}.
 {1}
 
-""".format(l["room"].name, l["room"].desc)
-        data = data + "The exits are : " + ', '.join(l["room"].exits) + "\n"
+""".format(l["room"].name, desc)
+        data = data + "The exits are : " + ', '.join(str(i) for i in l["room"].exits) + "\n"
         data = data + ', '.join(str(a) for a in l["players"])
         if len(l["players"]) > 1:
             data += " are here.\n"
@@ -71,6 +86,8 @@ class   Parser():
 
     def explode(self, player, message):
         copy = []
+        if not isinstance(message, list):
+            message = message.split(' ')
         for i in reversed(message):
             try:
                 copy.append(self.explode_commands[i](player, message))
