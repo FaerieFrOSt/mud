@@ -21,8 +21,13 @@ class   Parser():
             return
         for i in player.room.exits:
             if i.direction == message[0]:
+                r = player.room
                 self.send("move", player, i.to)
                 self.send("look", player)
+                self.send("send", player.name + " has left the room\n",
+                        rooms=r)
+                self.send("send", player.name + " has entered the room\n",
+                        dont=player, rooms=player.room)
                 return
         self.send("send", message[0] + " is not a valid exit\n", to=player)
 
