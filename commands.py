@@ -52,7 +52,10 @@ class   Parser():
         help - print this help,
         say  - say something,
         tell - tell someone something
-        quit - quit the mud\n"""
+        quit - quit the mud
+        now  - print the date
+        look - print the description and who is here
+        goto - go somewhere else\n"""
         self.send("send", data, to=player)
 
     def say(self, player, message):
