@@ -15,9 +15,16 @@ class   Worker():
         bus.register("quit", self.quit)
         bus.register("findPlayer", self.findPlayer)
         bus.register("room", self.room)
+        bus.register("getRoomByName", self.getRoomByName)
         bus.register("move", self.move)
         bus.register("look", self.printEnter)
         self.parser = Parser(bus)
+
+    def getRoomByName(self, name):
+        try:
+            return self.mud.rooms[name]
+        except KeyError:
+            pass
 
     def printEnter(self, player):
         if player.isVisited(player.room):
@@ -38,6 +45,7 @@ class   Worker():
         return data
 
     def quit(self, id):
+        self.players[id].save()
         del(self.players[id])
         self.server.disconnect(id)
 
@@ -68,6 +76,7 @@ class   Worker():
             player = None
             try:
                 player = self.players[id]
+                player.save()
                 del(self.players[id])
                 self.send(player.name + " disconnected\n", dont=player,
                         room=player.room)

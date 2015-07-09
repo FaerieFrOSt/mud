@@ -23,4 +23,8 @@ class   Mysql():
         if not self.ok:
             return
         cur = self.con.cursor()
-        cur.execute(command)
+        try:
+            cur.execute(command)
+            self.con.commit()
+        except:
+            self.con.rollback()
