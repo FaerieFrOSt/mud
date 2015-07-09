@@ -1,3 +1,10 @@
+import hashlib, binascii
+
+def hash(string):
+    dk = hashlib.pbkdf2_hmac('sha256', string.encode('UTF-8'),
+            b'dhjkhj3830@#$%%^ddfsjkwwiw49344', 100000)
+    return binascii.hexlify(dk).decode('UTF-8')
+
 class   Player():
     _STATE_NORMAL = 0
     _STATE_ANSWER = 1
@@ -52,6 +59,7 @@ class   Player():
         if len(message) < 1 or message[0] == "":
             self.send("send", "Please enter a valid password : ", to=self)
             return
+        message[0] = hash(message[0])
         res = self.mysql.getEntry("select * from users where name='"
                 + self.name + "'")
         a = [i for i in res]
