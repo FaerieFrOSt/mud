@@ -3,6 +3,7 @@ import datetime
 class   Parser():
     def __init__(self, bus):
         self.send = bus.send
+        bus.register("parse", self.explode)
         self.explode_commands = {
                 '/now'  : self.now,
                 }

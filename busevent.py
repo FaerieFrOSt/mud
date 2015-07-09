@@ -8,6 +8,7 @@ class   BusEvent():
     def send(self, name, *args, **kwargs):
         try:
             return self.registered[name](*args, **kwargs)
-        except KeyError:
+        except KeyError as e:
+            print("BusEvent error : " + str(e) + " not registered")
             pass
 

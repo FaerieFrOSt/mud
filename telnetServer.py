@@ -12,6 +12,7 @@ class   TelnetServer():
     _TN_DONT = 254
     _TN_SUBNEGOTIATION_START = 250
     _TN_SUBNEGOTIATION_END = 240
+    _TN_ECHO = 1
 
     # server events
     _EVENT_NEW_CLIENT = 1
@@ -35,6 +36,14 @@ class   TelnetServer():
         self.listenSocket.bind((ip, port))
         self.listenSocket.setblocking(False)
         self.listenSocket.listen(1)
+
+    def echo(self, id, toggle):
+        if not toggle:
+            m = [self._TN_INTERPRET_AS_COMMAND, self._TN_WONT, self._TN_ECHO]
+            self.send(id, ''.join(map(chr, m)))
+        else:
+            m = [self._TN_INTERPRET_AS_COMMAND, self._TN_WILL, self._TN_ECHO]
+            self.send(id, ''.join(map(chr, m)))
 
     def shutdown(self):
         for client in self.clients.values():

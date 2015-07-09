@@ -8,7 +8,7 @@ class   Mysql():
             cur = self.con.cursor()
             cur.execute("select version()")
             ver = cur.fetchone()
-        except mdb.Error, e:
+        except mdb.Error:
             self.ok = False
 
     def getEntry(self, command):
