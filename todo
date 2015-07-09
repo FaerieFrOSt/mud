@@ -4,3 +4,4 @@ OK - add logging
 OK - add mysql for persistance of players
 - add party
 - add channels
+- write code for questions and answers in player.py
