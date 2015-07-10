@@ -10,4 +10,9 @@
 		<description>This is the left room</description>
 		<exit to="Central room" direction="east">Central room</exit>
 	</room>
+	<npc>
+		<name>NPC</name>
+		<description>This is a test NPC</description>
+		<text condition="tell">Hello</text>
+	</npc>
 </world>
