@@ -5,4 +5,6 @@ OK - add mysql for persistance of players
 - add party
 - add channels
 - write code for questions and answers in player.py
-- add callbacks (broadcast messages, NPC)
+OK - add callbacks
+OK - add broadcasting messages
+- add NPC
