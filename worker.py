@@ -20,6 +20,10 @@ class   Worker():
         bus.register("look", self.printEnter)
         self.parser = Parser(bus)
 
+    def broadcast(self, message):
+        for j, i in self.players.items():
+            self.send(message, to=i)
+
     def getRoomByName(self, name):
         try:
             return self.mud.rooms[name]
