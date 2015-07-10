@@ -14,10 +14,11 @@ class   Worker():
         #bus.register("echo", self.server.echo)
         bus.register("quit", self.quit)
         bus.register("findPlayer", self.findPlayer)
-        bus.register("room", self.room)
+        bus.register("getPlayersInRoom", self.getPlayersInRoom)
         bus.register("getRoomByName", self.getRoomByName)
         bus.register("move", self.move)
         bus.register("look", self.printEnter)
+        bus.register("getNpcsInRoom", self.mud.getNpcsInRoom)
         self.parser = Parser(bus)
 
     def broadcast(self, message):
@@ -39,14 +40,6 @@ class   Worker():
 
     def move(self, player, name):
         player.room = self.mud.rooms[name]
-
-    def room(self, room):
-        data = {}
-        data["room"] = self.mud.rooms[room.name]
-        data["players"] = []
-        for i in self.getPlayersInRoom(room):
-            data["players"].append(i)
-        return data
 
     def quit(self, id):
         self.players[id].save()

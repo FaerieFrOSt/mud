@@ -33,8 +33,9 @@ class   Parser():
         self.send("send", message[0] + " is not a valid exit\n", to=player)
 
     def look(self, player, message):
-        l = self.send("room", player.room)
-        desc = l["room"].desc
+        l = [i for i in self.send("getPlayersInRoom", player.room)]
+        npcs = self.send("getNpcsInRoom", player.room)
+        desc = player.room.desc
         if len(message) > 0 and message[0] == "false":
             desc = ""
         if not l:
@@ -42,12 +43,13 @@ class   Parser():
         data = """You are in {0}.
 {1}
 
-""".format(l["room"].name, desc)
-        data = data + "The exits are : " + ', '.join(str(i) for i in l["room"].exits) + "\n"
-        data = data + ', '.join(str(a) for a in l["players"])
-        if len(l["players"]) > 1:
+""".format(player.room.name, desc)
+        data = data + "The exits are : " + ', '.join(str(i) for i in player.room.exits) + "\n"
+        data = data + "Npcs : " + ', '.join(str(i) for i in npcs) + '\n'
+        data = data + ', '.join(str(a) for a in l)
+        if len(l) > 1:
             data += " are here.\n"
-        elif len(l["players"]) == 1:
+        elif len(l) == 1:
             data += " is here.\n"
         else:
             data += "There isn't anyone here.\n"
