@@ -10,6 +10,7 @@ class   EventType(Enum):
     UNPACK = 6
     PACK = 7
     SAY = 8
+    TELL = 9
 
 class   Event:
     def __init__(self, type = None, id = None, data = None):

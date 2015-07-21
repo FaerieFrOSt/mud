@@ -11,6 +11,8 @@ class   Factory:
                     return i
         except KeyError:
             pass
+        if not args:
+            return None
         p = self.klass(*args)
         self.objects.append(p)
         return p

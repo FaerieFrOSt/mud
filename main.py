@@ -50,6 +50,9 @@ def populate(playerFactory, roomFactory, server, handler):
             to['room'].append(event.player.room)
         elif event.type == EventType.DISCON:
             to['room'].append(event.player.room)
+        elif event.type == EventType.TELL:
+            to['to'].append(playerFactory.get(name = event.data[0]))
+            event.data = event.data[1]
         return to
     
     def checkName(event):

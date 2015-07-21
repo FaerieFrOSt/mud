@@ -46,6 +46,17 @@ class   Player:
             return True
         elif event.type == EventType.DISCON:
             event.sendMessage("Goodbye!\nCome again!\n", to=self)
+        elif event.type == EventType.TELL:
+            if self == event.to['to'][0]:
+                if not event.to['to'][1]:
+                    event.sendMessage("No one with this name is connected right now\n", to=self)
+                    return True
+                event.sendMessage("You tells " + str(event.to['to'][1]) +
+                        " : \"" + event.data + "\"\n", to=self)
+                return True
+            else:
+                event.sendMessage(str(event.to['to'][1]) + " tells you : \"" +
+                        event.data + "\"\n", to=self)
 
     def commandLine(self):
         return "> "

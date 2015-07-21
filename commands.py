@@ -6,6 +6,11 @@ def _say(event):
     event.data = ' '.join(event.message[1:])
     return event
 
+def _tell(event):
+    event.type = EventType.TELL
+    event.data = (event.message[1], ' '.join(event.message[2:]))
+    return event
+
 def _now(event):
     return str(datetime.datetime.now())
 
@@ -16,6 +21,7 @@ def _quit(event):
 _commands = {
         '/say' : _say,
         '/quit' : _quit,
+        '/tell' : _tell,
         }
 
 _explode_commands = {
