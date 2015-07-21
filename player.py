@@ -55,8 +55,11 @@ class   Player:
             return
         event.sendMessage("[DEBUG] Your character got the event : " + str(event.type)
                 + "\n", to=self)
-        if event.type == EventType.MESSAGE and len(event.message) < 1:
+        if event.type == EventType.MESSAGE and len(event.message) < 1 and self.name:
             event.sendMessage(self.commandLine(), to=self)
+            return
+        elif event.type == EventType.MESSAGE and len(event.message) < 1:
+            event.sendMessage("This name is not available\nEnter your name : ", to=self)
             return
         if self.func[self.state](event):
             event.sendMessage(self.commandLine(), to=self)

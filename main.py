@@ -6,7 +6,7 @@ from mud import Room
 from functools import partial
 import time
 
-DEBUG = 1
+DEBUG = 0
 
 def addEvents(handler, server):
     for i in server.get_new_clients():
@@ -51,9 +51,19 @@ def populate(playerFactory, roomFactory, server, handler):
         elif event.type == EventType.DISCON:
             to['room'].append(event.player.room)
         return to
+    
+    def checkName(event):
+        if not isinstance(event.data, str):
+            return True
+        names = playerFactory.map(lambda i: i.name)
+        if event.data.lstrip(' \t\r').split(' ')[0] in names:
+            return False
+        return True
 
     def handle(event):
         event.player = playerFactory.get(event.id, id = event.id)
+        if not event.player.name and not checkName(event):
+            event.data = ""
         if event.data and isinstance(event.data, str):
             event.message = event.data.lstrip(' \t\r').rstrip(' \t\r').split(' ')
         elif isinstance(event.data, str):

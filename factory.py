@@ -19,5 +19,7 @@ class   Factory:
         self.objects.remove(Object)
 
     def map(self, function):
+        ret = []
         for i in self.objects:
-            function(i)
+            ret.append(function(i))
+        return ret
