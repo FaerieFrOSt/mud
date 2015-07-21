@@ -49,10 +49,13 @@ class   Handler(queue.Queue):
             self.bindings[eventType] = func
 
     def handleEvents(self):
+        ret = None
         while not self.empty():
             e = self.get(block = False)
+            if e.type == EventType.DISCON:
+                ret = e.id
             try:
                 self.bindings[e.type](e)
             except KeyError:
                 print(str(e.type) + " has no binding")
-        
+        return ret 

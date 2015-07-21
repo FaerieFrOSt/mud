@@ -46,6 +46,8 @@ def populate(playerFactory, roomFactory, server, handler):
             to['room'].append(event.data)
         elif event.type == EventType.SAY:
             to['room'].append(event.player.room)
+        elif event.type == EventType.DISCON:
+            to['room'].append(event.player.room)
         return to
 
     def handle(event):
@@ -73,5 +75,7 @@ handler.bind(populate(playerFactory, roomFactory, server, handler), '*')
 
 while server.update():
     addEvents(handler, server)
-    handler.handleEvents()
+    tmp = handler.handleEvents()
+    if isinstance(tmp, int):
+        server.disconnect(tmp)
     time.sleep(0.2)

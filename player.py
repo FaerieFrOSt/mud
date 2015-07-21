@@ -44,6 +44,8 @@ class   Player:
         elif event.type == EventType.SAY:
             event.sendMessage("You said : \"" + event.data + "\"\n", to=self)
             return True
+        elif event.type == EventType.DISCON:
+            event.sendMessage("Goodbye!\nCome again!\n", to=self)
 
     def commandLine(self):
         return "> "
