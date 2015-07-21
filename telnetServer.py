@@ -2,7 +2,7 @@ import socket
 import time
 import select
 
-class   TelnetServer():
+class   TelnetServer:
     # telnet protocol
     _TN_INTERPRET_AS_COMMAND = 255
     _TN_ARE_YOU_THERE = 246
@@ -19,7 +19,7 @@ class   TelnetServer():
     _EVENT_CLIENT_DISCONNECTED = 2
     _EVENT_MESSAGE = 3
 
-    class   Client():
+    class   Client:
         def __init__(self, socket, address):
             self.socket = socket
             self.address = address
@@ -71,12 +71,6 @@ class   TelnetServer():
     def sendAll(self, data):
         for id, client in list(self.clients.items()):
             self.send(id, data)
-
-    def sendAllExcept(self, id, data):
-        for i, client in list(self.clients.items()):
-            if i == id:
-                continue
-            self.send(i, data)
 
     def send(self, client, data):
         try:
