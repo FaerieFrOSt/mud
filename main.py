@@ -6,7 +6,7 @@ from mud import Room
 from functools import partial
 import time
 
-DEBUG = 0
+DEBUG = 1
 
 def addEvents(handler, server):
     for i in server.get_new_clients():
@@ -19,6 +19,8 @@ def addEvents(handler, server):
 def send(server, message, to=[], dont=[], room=[]):
     if not DEBUG and message.split(' ')[0] == "[DEBUG]":
         return
+    if DEBUG and message.split(' ')[0] == "[DEBUG]":
+        print(message, end="")
     if not isinstance(to, list):
         to = [to]
     if not isinstance(dont, list):
