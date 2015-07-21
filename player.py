@@ -3,4 +3,7 @@ class   Player:
         self.id = id
 
     def handleEvent(self, event):
-        print(str(self.id) + " had an event : " + str(event.type))
+        if self not in event.to['to']:
+            return
+        event.sendMessage("Your character got the event : " + str(event.type),
+                to=self)

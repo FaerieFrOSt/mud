@@ -9,6 +9,7 @@ class   Room(Container):
         return self.name
 
     def handleEvent(self, event):
-        if event.type == EventType.NEW_CONN:
-            self.pack(event.player)
+        if self in event.to['room']:
+            if event.type == EventType.NEW_CONN:
+                self.pack(event.player)
         super().handleEvent(event)
