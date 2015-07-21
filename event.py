@@ -45,9 +45,9 @@ class   Handler(queue.Queue):
 
     def handleEvents(self):
         while not self.empty():
-            e = self.get()
+            e = self.get(block = False)
             try:
                 self.bindings[e.type](e)
             except KeyError:
-                pass
+                print(str(e.type) + " has no binding")
         

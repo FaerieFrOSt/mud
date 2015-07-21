@@ -19,4 +19,5 @@ class   Factory:
         self.objects.remove(Object)
 
     def map(self, function):
-        return map(function, self.objects)
+        for i in self.objects:
+            function(i)

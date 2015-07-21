@@ -6,6 +6,8 @@ from mud import Room
 from functools import partial
 import time
 
+DEBUG = 0
+
 def addEvents(handler, server):
     for i in server.get_new_clients():
         handler.put(Event(EventType.NEW_CONN, i))
@@ -15,6 +17,8 @@ def addEvents(handler, server):
         handler.put(Event(EventType.MESSAGE, i[0], i[1]))
 
 def send(server, message, to=[], dont=[], room=[]):
+    if not DEBUG and message.split(' ')[0] == "[DEBUG]":
+        return
     if not isinstance(to, list):
         to = [to]
     if not isinstance(dont, list):
@@ -29,42 +33,50 @@ def send(server, message, to=[], dont=[], room=[]):
         for j in i.components:
             if j in dont or j in to:
                 continue
-        server.send(j.id, message)
+            server.send(j.id, message)
 
 def populate(playerFactory, roomFactory, server, handler):
-    def handle(event):
-        event.player = playerFactory.get(id = event.id)
-        event.sendMessage = partial(send, server)
-        event.sendEvent = handler.put
-        event.to = {
-                'to'   : [event.player],
-                'room' : [],
-                'dont' : [],
-                }
-        roomFactory.map(lambda i: i.handleEvent(event))
-    return handle
+    def populateTo(event):
+        to = {'to':[], 'room':[], 'dont':[]}
+        if event.type == EventType.NEW_CONN:
+            to['to'].append(event.player)
+            to['room'].append(roomFactory.get(name = "no name"))
+        elif event.type == EventType.MESSAGE:
+            to['to'].append(event.player)
+        elif event.type == EventType.UNPACK:
+            to['to'].append(event.player)
+            to['room'].append(event.data)
+        elif event.type == EventType.PACK:
+            to['to'].append(event.player)
+            to['room'].append(event.data)
+        return to
 
-def newConnection(playerFactory, room, server, handler):
     def handle(event):
-        event.player = playerFactory.get(event.id)
-        event.to = {
-                'to'   : [event.player],
-                'room' : [room],
-                'dont' : [],
-                }
+        event.player = playerFactory.get(event.id, id = event.id)
+        if event.data and isinstance(event.data, str):
+            event.message = event.data.lstrip(' \t\r').rstrip(' \t\r').split(' ')
+        elif isinstance(event.data, str):
+            event.message = event.data
+        else:
+            event.message = None
         event.sendMessage = partial(send, server)
         event.sendEvent = handler.put
-        room.handleEvent(event)
+        event.to = populateTo(event)
+        roomFactory.map(lambda i: i.handleEvent(event))
     return handle
 
 server = TelnetServer("0.0.0.0", 23)
 playerFactory = Factory(Player)
 roomFactory = Factory(Room)
-noRoom = roomFactory.get("no name", name = "no name")
+r = roomFactory.get("no name")
+p = roomFactory.get("Central room")
+r.exits = [p]
 handler = Handler()
-handler.bind(newConnection(playerFactory, noRoom, server, handler), EventType.NEW_CONN)
+handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.NEW_CONN)
 handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.DISCON)
 handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.MESSAGE)
+handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.UNPACK)
+handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.PACK)
 
 while server.update():
     addEvents(handler, server)
