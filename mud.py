@@ -21,6 +21,8 @@ class   Room(Container):
                 event.sendMessage(str(event.player) + " has entered the room\n",
                         room=self)
                 self.pack(event.player)
+            elif event.type == EventType.SAY:
+                event.sendMessage(str(event.player) + " said : \"" + event.data + "\"\n", dont=event.player, room=self)
         super().handleEvent(event)
         for i in unpack:
             self.unpack(i)

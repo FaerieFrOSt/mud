@@ -9,6 +9,7 @@ class   EventType(Enum):
     CHANGE_ROOM = 5
     UNPACK = 6
     PACK = 7
+    SAY = 8
 
 class   Event:
     def __init__(self, type = None, id = None, data = None):
@@ -41,7 +42,11 @@ class   Handler(queue.Queue):
         self.bindings = {}
 
     def bind(self, func, eventType):
-        self.bindings[eventType] = func
+        if eventType == '*':
+            for i in EventType:
+                self.bindings[i] = func
+        else:
+            self.bindings[eventType] = func
 
     def handleEvents(self):
         while not self.empty():

@@ -37,18 +37,15 @@ def send(server, message, to=[], dont=[], room=[]):
 
 def populate(playerFactory, roomFactory, server, handler):
     def populateTo(event):
-        to = {'to':[], 'room':[], 'dont':[]}
+        to = {'to':[event.player], 'room':[], 'dont':[]}
         if event.type == EventType.NEW_CONN:
-            to['to'].append(event.player)
             to['room'].append(roomFactory.get(name = "no name"))
-        elif event.type == EventType.MESSAGE:
-            to['to'].append(event.player)
         elif event.type == EventType.UNPACK:
-            to['to'].append(event.player)
             to['room'].append(event.data)
         elif event.type == EventType.PACK:
-            to['to'].append(event.player)
             to['room'].append(event.data)
+        elif event.type == EventType.SAY:
+            to['room'].append(event.player.room)
         return to
 
     def handle(event):
@@ -72,11 +69,7 @@ r = roomFactory.get("no name")
 p = roomFactory.get("Central room")
 r.exits = [p]
 handler = Handler()
-handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.NEW_CONN)
-handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.DISCON)
-handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.MESSAGE)
-handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.UNPACK)
-handler.bind(populate(playerFactory, roomFactory, server, handler), EventType.PACK)
+handler.bind(populate(playerFactory, roomFactory, server, handler), '*')
 
 while server.update():
     addEvents(handler, server)

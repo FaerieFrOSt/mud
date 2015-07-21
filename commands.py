@@ -1,31 +1,35 @@
 import datetime
+from event import Event, EventType
 
-class   Parser:
-    def __init__(self):
-        self.explode_commands = {
-                '/now'  : self.now,
-                }
-        self.commands = {
-                '/say'  : self.say,
-                }
+def _say(event):
+    event.type = EventType.SAY
+    event.data = ' '.join(event.message[1:])
+    event.to['to'] = [event.player]
+    event.to['room'] = [event.player.room]
+    return event
 
-    def say(self, message):
-        pass
+def _now(event):
+    return str(datetime.datetime.now())
 
-    def now(self, message):
-        return str(datetime.datetime.now())
-    
-    def explode(self, message):
-        copy = []
-        if not isinstance(message, list):
-            message = message.split(' ')
-        for i in reversed(message):
-            try:
-                copy.append(self.explode_commands[i](message))
-            except KeyError:
-                if i in self.commands:
-                    self.commands[i](list(reversed(copy)))
-                    return
-                else:
-                    copy.append(i)
-        self.send("send", "Command not found\n", to=player)
+_commands = {
+        '/say' : _say,
+        }
+
+_explode_commands = {
+        '/now' : _now,
+        }
+
+def parse(event):
+    copy = []
+    if not isinstance(event.message, list):
+        event.message = event.message.split(' ')
+    for i in reversed(event.message):
+        try:
+            copy.append(_explode_commands[i](event))
+        except KeyError:
+            if i in _commands:
+                event.data = list(reversed(copy))
+                return _commands[i](event)
+            else:
+                copy.append(i)
+    return None

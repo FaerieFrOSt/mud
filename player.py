@@ -1,4 +1,5 @@
 from event import EventType, Event
+import commands
 
 class   Player:
     _NAME_ASK = 1
@@ -28,14 +29,20 @@ class   Player:
 
     def digest(self, event):
         if event.type == EventType.MESSAGE:
-            event.sendMessage("Command not reconized!\n", to=self)
-            return True
+            e = commands.parse(event)
+            if not e:
+                event.sendMessage("Command not reconized!\n", to=self)
+                return True
+            event.sendEvent(e)
         elif event.type == EventType.UNPACK and self.room.name != "no name":
             event.sendMessage("You left " + str(self.room) + "\n", to=self)
             self.room = None
         elif event.type == EventType.PACK:
             self.room = event.to['room'][0]
             event.sendMessage("You entered " + str(self.room) + "\n", to=self)
+            return True
+        elif event.type == EventType.SAY:
+            event.sendMessage("You said : \"" + event.data + "\"\n", to=self)
             return True
 
     def commandLine(self):
