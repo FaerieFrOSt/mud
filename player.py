@@ -33,6 +33,8 @@ class   Player:
             if not e:
                 event.sendMessage("Command not reconized!\n", to=self)
                 return True
+            if e == True:
+                return True
             event.sendEvent(e)
         elif event.type == EventType.UNPACK and self.room.name != "no name":
             event.sendMessage("You left " + str(self.room) + "\n", to=self)
