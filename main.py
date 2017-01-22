@@ -16,7 +16,7 @@ def loadBroadcasts(mysql, callbacks, worker):
 server = TelnetServer("0.0.0.0", 23)
 mud = Mud("data.xml")
 bus = BusEvent()
-mysql = Mysql('localhost', 'mud', 'root', 'vive-moi')
+mysql = Mysql('localhost', 'mud', 'root', '')
 if not mysql.ok:
     print("Error while connecting to mysql")
     exit()

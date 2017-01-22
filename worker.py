@@ -33,9 +33,9 @@ class   Worker():
 
     def printEnter(self, player):
         if player.isVisited(player.room):
-            self.parser.explode(player, "/look false")
+            self.parser.explode(player, "look false")
         else:
-            self.parser.explode(player, "/look")
+            self.parser.explode(player, "look")
             player.visit(player.room)
 
     def move(self, player, name):

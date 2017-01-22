@@ -5,20 +5,20 @@ class   Parser():
         self.send = bus.send
         bus.register("parse", self.explode)
         self.explode_commands = {
-                '/now'  : self.now,
+                'now'  : self.now,
                 }
         self.commands = {
-                '/say'  : self.say,
-                '/tell' : self.tell,
-                '/quit' : self.quit,
-                '/help' : self.help,
-                '/look' : self.look,
-                '/goto' : self.goto,
+                'say'  : self.say,
+                'tell' : self.tell,
+                'quit' : self.quit,
+                'help' : self.help,
+                'look' : self.look,
+                'goto' : self.goto,
                 }
 
     def goto(self, player, message):
         if len(message) < 1:
-            self.send("send", "Usage : /goto direction\n", to=player)
+            self.send("send", "Usage : goto direction\n", to=player)
             return
         for i in player.room.exits:
             if i.direction == message[0]:
@@ -99,6 +99,8 @@ class   Parser():
         copy = []
         if not isinstance(message, list):
             message = message.split(' ')
+        if len(message) == 1 and message[0] == '':
+            return
         for i in reversed(message):
             try:
                 copy.append(self.explode_commands[i](player, message))
